@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Панель управления — CHOCOLATE</title>
+    <!-- Favicon & PWA Icons -->
+    <link rel="icon" type="image/svg+xml" href="images/favicon.svg">
+    <link rel="apple-touch-icon" href="images/apple-touch-icon.png">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#221A15">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="CHOCOLATE Admin">
+
+    <!-- Google Fonts: Syne, Tenor Sans & Plus Jakarta Sans -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Syne:wght@500;600;700;800&family=Tenor+Sans&display=swap" rel="stylesheet">
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <!-- Admin CSS -->
+    <link rel="stylesheet" href="css/admin.css">
+</head>
+<body>
+
+    <!-- ═══════════════ TOPBAR ═══════════════ -->
+    <header class="admin-topbar">
+        <div class="admin-brand">
+            <a href="index.html" title="На главную">
+                <img src="images/logo.svg" alt="CHOCOLATE" class="admin-logo-img">
+            </a>
+            <span class="admin-badge">Склад и витрина</span>
+        </div>
+
+        <div class="topbar-actions">
+            <a href="index.html" class="btn btn-outline" target="_blank" title="Открыть витрину магазина">
+                <i class="fas fa-external-link-alt"></i> Открыть магазин
+            </a>
+            <button type="button" class="btn btn-primary" onclick="window.cwOpenAddModal()">
+                <i class="fas fa-plus"></i> Добавить товар
+            </button>
+        </div>
+    </header>
+
+    <!-- ═══════════════ MAIN CONTAINER ═══════════════ -->
+    <main class="admin-container">
+
+        <!-- ═══════════════ DASHBOARD STATS ═══════════════ -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon"><i class="fas fa-tshirt"></i></div>
+                <div class="stat-info">
+                    <h4>Моделей в базе</h4>
+                    <div class="stat-value" id="statTotalProducts">0</div>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon"><i class="fas fa-boxes-stacked"></i></div>
+                <div class="stat-info">
+                    <h4>Единиц на складе</h4>
+                    <div class="stat-value" id="statTotalStock">0</div>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon"><i class="fas fa-star"></i></div>
+                <div class="stat-info">
+                    <h4>На главном экране</h4>
+                    <div class="stat-value" id="statFeatured">0</div>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon"><i class="fas fa-tags"></i></div>
+                <div class="stat-info">
+                    <h4>Со скидкой (Sale)</h4>
+                    <div class="stat-value" id="statOnSale">0</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══════════════ TOOLBAR ═══════════════ -->
+        <div class="admin-toolbar">
+            <div class="toolbar-left">
+                <div class="search-input-wrap">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="adminSearchInput" class="search-input" placeholder="Поиск по названию или артикулу...">
+                </div>
+
+                <select id="adminCategoryFilter" class="filter-select" aria-label="Фильтр по категориям">
+                    <option value="all">Все категории</option>
+                    <option value="Платья">Платья</option>
+                    <option value="Костюмы">Костюмы</option>
+                    <option value="Верхняя одежда">Верхняя одежда</option>
+                    <option value="Блузы и рубашки">Блузы и рубашки</option>
+                    <option value="Юбки и брюки">Юбки и брюки</option>
+                    <option value="Трикотаж">Трикотаж</option>
+                    <option value="Аксессуары">Аксессуары</option>
+                </select>
+            </div>
+
+            <div class="toolbar-right">
+                <!-- Select Photo / Screenshot from laptop or phone gallery -->
+                <label class="btn btn-primary btn-sm" style="margin-bottom:0; cursor:pointer;" title="Выбрать фото или скриншот (PNG, JPEG)">
+                    <i class="fas fa-folder-open"></i> Выбрать фото / Скриншот
+                    <input type="file" accept="image/png, image/jpeg, image/jpg, image/webp, image/*, .png, .jpg, .jpeg, .webp" style="display:none;" onchange="window.cwAddFromGallery(this)">
+                </label>
+
+                <!-- Live camera snapshot shortcut directly on site -->
+                <button type="button" class="btn btn-outline btn-sm" onclick="window.cwOpenAddModal(); window.cwOpenLiveCamera();" title="Включить камеру ноутбука или телефона и сделать снимок">
+                    <i class="fas fa-camera"></i> Сфоткать на сайте
+                </button>
+
+                <!-- Clear all button -->
+                <button type="button" class="btn btn-outline btn-sm" onclick="window.cwClearAllProducts()" title="Очистить каталог" style="color:var(--danger);">
+                    <i class="fas fa-trash"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- ═══════════════ PRODUCTS TABLE ═══════════════ -->
+        <div class="table-card">
+            <div class="table-responsive">
+                <table class="admin-table">
+                    <thead>
+                        <tr>
+                            <th>Фото</th>
+                            <th>Название и артикул</th>
+                            <th>Категория</th>
+                            <th>Цена / Скидка</th>
+                            <th>Остатки по размерам (XS &rarr; XXL)</th>
+                            <th style="text-align: center;">На главной</th>
+                            <th>Действия</th>
+                        </tr>
+                    </thead>
+                    <tbody id="productsTableBody">
+                        <!-- Populated dynamically -->
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Empty State -->
+            <div class="empty-table-state" id="adminEmptyState" style="display:none;">
+                <i class="fas fa-box-open"></i>
+                <h3>В каталоге пока нет товаров</h3>
+                <p>Нажмите «Добавить товар» или сфотографируйте вещь с камеры телефона.</p>
+                <div style="margin-top: 16px; display:flex; gap:10px; justify-content:center;">
+                    <button type="button" class="btn btn-primary" onclick="window.cwOpenAddModal()">
+                        <i class="fas fa-plus"></i> Добавить первый товар
+                    </button>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- ═══════════════ PRODUCT FORM MODAL (CREATE / EDIT) ═══════════════ -->
+    <div class="modal-overlay" id="productModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modalFormTitle">Добавить новый товар</h3>
+                <button type="button" class="modal-close" onclick="window.cwCloseModal('productModal')">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+
+            <form id="productForm" onsubmit="window.cwSaveProduct(event)">
+                <div class="modal-body">
+
+                    <!-- ─── PHOTO CAPTURE & UPLOAD SECTION ─── -->
+                    <div class="photo-uploader-box" id="photoDropZone">
+                        <div class="photo-preview-container" onclick="document.getElementById('formGalleryInput').click()" style="cursor:pointer;" title="Нажмите, чтобы выбрать скриншот или фото (PNG, JPEG)">
+                            <img id="formImagePreview" src="" alt="Предпросмотр" style="display:none;">
+                            <div class="photo-preview-placeholder" id="formPlaceholderBox">
+                                <i class="fas fa-cloud-arrow-up" style="font-size:32px; display:block; margin-bottom:6px; color:var(--brand-accent);"></i>
+                                <span style="font-weight:600; color:var(--brand-dark);">Загрузить фото</span>
+                                <small style="display:block; color:var(--text-muted); font-size:10px; margin-top:2px;">PNG, JPEG, скриншот или Ctrl+V</small>
+                            </div>
+                        </div>
+
+                        <div class="photo-actions-row">
+                            <!-- 1. Dedicated File & Screenshot Button (PNG, JPEG, etc.) -->
+                            <label class="btn btn-primary btn-sm" style="margin-bottom:0; cursor:pointer;" title="Выбрать файл скриншота или фото с ноутбука или телефона">
+                                <i class="fas fa-folder-open"></i> Выбрать файл / Скриншот
+                                <input type="file" id="formGalleryInput" accept="image/png, image/jpeg, image/jpg, image/webp, image/*, .png, .jpg, .jpeg, .webp" style="display:none;" onchange="window.cwHandleFileUpload(this)">
+                            </label>
+
+                            <!-- 2. Live Camera on Site (Laptop Webcam & Mobile) -->
+                            <button type="button" class="btn btn-outline btn-sm" onclick="window.cwOpenLiveCamera()" title="Сфоткать прямо сейчас на камеру ноутбука или телефона">
+                                <i class="fas fa-camera"></i> Сфоткать на сайте
+                            </button>
+
+                            <!-- 3. Direct Image URL -->
+                            <button type="button" class="btn btn-outline btn-sm" onclick="window.cwPromptImageUrl()" title="Вставить прямую ссылку на фото">
+                                <i class="fas fa-link"></i> Ссылка
+                            </button>
+
+                            <!-- Remove Photo -->
+                            <button type="button" class="btn btn-outline btn-sm" onclick="window.cwRemoveProductImage()" title="Удалить фото" style="color:var(--danger);">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                        <input type="hidden" id="formImageVal" value="">
+                    </div>
+
+                    <!-- ─── BASIC INFO ─── -->
+                    <div class="form-grid-2">
+                        <div class="form-group">
+                            <label class="form-label" for="formTitle">Название товара *</label>
+                            <input type="text" id="formTitle" class="form-input" required placeholder="Например: Шелковое платье-миди Chocolate">
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label" for="formCategory">Категория *</label>
+                            <select id="formCategory" class="form-select">
+                                <option value="Платья">Платья</option>
+                                <option value="Костюмы">Костюмы</option>
+                                <option value="Верхняя одежда">Верхняя одежда</option>
+                                <option value="Блузы и рубашки">Блузы и рубашки</option>
+                                <option value="Юбки и брюки">Юбки и брюки</option>
+                                <option value="Трикотаж">Трикотаж</option>
+                                <option value="Аксессуары">Аксессуары</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- ─── PRICES & DISCOUNT ─── -->
+                    <div class="form-grid-2">
+                        <div class="form-group">
+                            <label class="form-label" for="formPrice">Цена продажи (₸) *</label>
+                            <input type="number" id="formPrice" class="form-input" required min="0" placeholder="28500">
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label" for="formOldPrice">Старая цена / Скидка (₸)</label>
+                            <input type="number" id="formOldPrice" class="form-input" min="0" placeholder="35000 (оставьте пустым, если нет скидки)">
+                        </div>
+                    </div>
+
+                    <!-- ─── SIZES MATRIX (SMALLEST TO LARGEST) ─── -->
+                    <div class="size-matrix-container">
+                        <div class="size-matrix-header">
+                            <h4><i class="fas fa-ruler-combined"></i> Количество товаров каждого размера:</h4>
+                            <span style="font-size:11px; color:var(--text-muted);">От меньшего к большему</span>
+                        </div>
+
+                        <div class="size-matrix-grid">
+                            <!-- XS (40) -->
+                            <div class="size-matrix-col">
+                                <div class="size-col-name">XS</div>
+                                <div class="size-col-sub">Р-р 40</div>
+                                <input type="number" id="size_input_xs" class="size-col-input" min="0" value="1">
+                            </div>
+
+                            <!-- S (42) -->
+                            <div class="size-matrix-col">
+                                <div class="size-col-name">S</div>
+                                <div class="size-col-sub">Р-р 42</div>
+                                <input type="number" id="size_input_s" class="size-col-input" min="0" value="1">
+                            </div>
+
+                            <!-- M (44) -->
+                            <div class="size-matrix-col">
+                                <div class="size-col-name">M</div>
+                                <div class="size-col-sub">Р-р 44</div>
+                                <input type="number" id="size_input_m" class="size-col-input" min="0" value="1">
+                            </div>
+
+                            <!-- L (46) -->
+                            <div class="size-matrix-col">
+                                <div class="size-col-name">L</div>
+                                <div class="size-col-sub">Р-р 46</div>
+                                <input type="number" id="size_input_l" class="size-col-input" min="0" value="1">
+                            </div>
+
+                            <!-- XL (48) -->
+                            <div class="size-matrix-col">
+                                <div class="size-col-name">XL</div>
+                                <div class="size-col-sub">Р-р 48</div>
+                                <input type="number" id="size_input_xl" class="size-col-input" min="0" value="0">
+                            </div>
+
+                            <!-- XXL (50) -->
+                            <div class="size-matrix-col">
+                                <div class="size-col-name">XXL</div>
+                                <div class="size-col-sub">Р-р 50</div>
+                                <input type="number" id="size_input_xxl" class="size-col-input" min="0" value="0">
+                            </div>
+
+                            <!-- ONE SIZE -->
+                            <div class="size-matrix-col">
+                                <div class="size-col-name">ONE</div>
+                                <div class="size-col-sub">Универс.</div>
+                                <input type="number" id="size_input_one" class="size-col-input" min="0" value="0">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ─── FEATURED ON HOME SCREEN CHECKBOX ─── -->
+                    <div class="form-group" style="background:#FAF9F6; padding:12px 16px; border-radius:var(--radius-xs); border:1px solid var(--border-color);">
+                        <label style="display:flex; align-items:center; gap:10px; cursor:pointer; font-weight:600; color:var(--brand-dark);">
+                            <input type="checkbox" id="formIsFeatured" style="width:18px; height:18px; accent-color:var(--brand-dark);">
+                            <span><i class="fas fa-star" style="color:#F59E0B;"></i> Выставить товар на главный экран (Хит продаж бутика)</span>
+                        </label>
+                    </div>
+
+                    <!-- ─── DESCRIPTION & SKU ─── -->
+                    <div class="form-grid-2">
+                        <div class="form-group">
+                            <label class="form-label" for="formSku">Артикул (SKU)</label>
+                            <input type="text" id="formSku" class="form-input" placeholder="Автоматически (например: CW-4102)">
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label" for="formDesc">Описание, состав и уход</label>
+                            <input type="text" id="formDesc" class="form-input" placeholder="Состав: 70% вискоза, 30% шелк. Деликатная стирка...">
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline" onclick="window.cwCloseModal('productModal')">
+                        Отмена
+                    </button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i> Сохранить товар
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ═══════════════ LIVE CAMERA MODAL ═══════════════ -->
+    <div class="modal-overlay" id="cameraModal">
+        <div class="modal-content" style="max-width: 500px;">
+            <div class="modal-header">
+                <h3><i class="fas fa-camera"></i> Сделать фото товара</h3>
+                <button type="button" class="modal-close" onclick="window.cwCloseLiveCamera()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+
+            <div class="modal-body" style="text-align: center;">
+                <div class="camera-view-container">
+                    <video id="cameraVideo" autoplay playsinline muted></video>
+                    <canvas id="cameraCanvas"></canvas>
+                </div>
+
+                <div class="camera-controls-bar">
+                    <!-- Switch camera (front / back) -->
+                    <button type="button" class="btn btn-outline" onclick="window.cwSwitchCamera()" title="Переключить камеру">
+                        <i class="fas fa-camera-rotate"></i> Сменить камеру
+                    </button>
+
+                    <!-- Shutter Snap -->
+                    <button type="button" class="camera-shutter-btn" onclick="window.cwTakeSnapshot()" title="Сделать снимок">
+                        <i class="fas fa-circle"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══════════════ QUICK STOCK ADJUSTMENT MODAL ═══════════════ -->
+    <div class="modal-overlay" id="quickStockModal">
+        <div class="modal-content quick-stock-modal">
+            <div class="modal-header">
+                <h3>Быстрое изменение остатков</h3>
+                <button type="button" class="modal-close" onclick="window.cwCloseModal('quickStockModal')">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+
+            <div class="modal-body">
+                <h4 id="quickStockTitle" style="margin-bottom:14px; font-weight:600; color:var(--brand-dark);">Товар</h4>
+                <div id="quickStockGrid" style="display:grid; grid-template-columns: repeat(4, 1fr); gap: 10px;">
+                    <!-- Injected dynamically -->
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline" onclick="window.cwCloseModal('quickStockModal')">
+                    Отмена
+                </button>
+                <button type="button" class="btn btn-primary" onclick="window.cwSaveQuickStock()">
+                    <i class="fas fa-check"></i> Применить
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="js/admin.js"></script>
+</body>
+</html>
